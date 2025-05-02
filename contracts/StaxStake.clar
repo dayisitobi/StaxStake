@@ -4,6 +4,7 @@
 (define-data-var total-staked uint u0)
 (define-data-var reward-rate uint u500) ;; 5% annual rate (basis points)
 (define-data-var last-reward-calculation uint u0)
+(define-data-var contract-owner principal tx-sender) ;; Set deployer as initial owner
 
 (define-fungible-token stSTX)
 
@@ -51,7 +52,7 @@
 
 (define-public (update-reward-rate (new-rate uint))
   (begin
-    (asserts! (is-eq tx-sender (contract-owner)) ERR-NOT-AUTHORIZED)
+    (asserts! (is-eq tx-sender (var-get contract-owner)) ERR-NOT-AUTHORIZED)
     (var-set reward-rate new-rate)
     (ok new-rate)))
 
@@ -60,5 +61,11 @@
         (rate (var-get reward-rate)))
     {total: total, rate: rate}))
 
-(define-private (contract-owner)
-  (contract-call? 'SP000000000000000000002Q6VF78.pox-3 get-pox-addr))
+(define-public (set-contract-owner (new-owner principal))
+  (begin
+    (asserts! (is-eq tx-sender (var-get contract-owner)) ERR-NOT-AUTHORIZED)
+    (var-set contract-owner new-owner)
+    (ok new-owner)))
+
+(define-read-only (get-contract-owner)
+  (var-get contract-owner))
