@@ -36,7 +36,7 @@
     (try! (ft-burn? stSTX amount tx-sender))
     
     ;; Transfer STX from contract to sender
-    (as-contract (stx-transfer? amount tx-sender tx-sender))
+    (try! (as-contract (stx-transfer? amount tx-sender tx-sender)))
     
     ;; Update total staked
     (var-set total-staked (- (var-get total-staked) amount))
